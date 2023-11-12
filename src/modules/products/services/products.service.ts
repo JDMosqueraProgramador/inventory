@@ -11,8 +11,18 @@ export class ProductsService {
     private readonly productRepository: Repository<Product>,
   ) {}
 
+  async findOne(criteria: string) {
+    return this.productRepository.findOne({
+      where: [
+        { id: !Number.isNaN(+criteria) ? +criteria : 0 },
+        { productName: criteria },
+      ],
+      relations: ['category', 'supplier'],
+    });
+  }
+
   async findAll(): Promise<Product[]> {
-    return this.productRepository.find();
+    return this.productRepository.find({ relations: ['category', 'supplier'] });
   }
 
   async create(productData: Partial<Product>) {
@@ -24,8 +34,11 @@ export class ProductsService {
     return { ...savedProduct, qr };
   }
 
-  async addStock(id: number, quantity: number): Promise<Product> {
-    const product = await this.productRepository.findOneBy({ id });
+  async addStock(id: string, quantity: number): Promise<Product> {
+    const product = await this.productRepository.findOneBy([
+      { id: !Number.isNaN(+id) ? +id : 0 },
+      { productName: id },
+    ]);
     product.quantityInStock += quantity;
     return this.productRepository.save(product);
   }

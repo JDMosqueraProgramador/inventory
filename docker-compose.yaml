@@ -1,6 +1,7 @@
 version: '3.0'
 services:
   inventory-database:
+    restart: always
     image: postgres
     environment:
       - POSTGRES_USER=${DB_USER}
